@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Control Limpiaparabrisas FINAL</title>
+    <title>Control Limpiaparabrisas FINAL PRO</title>
     
     <!-- Librerías Externas -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -17,7 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- DISEÑO V9 - DUAL THEME (LIGHT/DARK) --- */
+        /* --- DISEÑO V13.1 - DUAL THEME (LIGHT/DARK) --- */
 
         :root {
             /* --- Light Theme (Default) --- */
@@ -31,14 +31,15 @@
             --text-secondary: #6b7280;
             --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             
-            --accent-color: #16a34a; /* Green */
-            --pending-color: #dc2626; /* Red */
+            --reparado-color: #16a34a; /* Green */
+            --pendiente-color: #dc2626; /* Red */
+            --solicitado-color: #f59e0b; /* Amber */
             --info-color: #2563eb;   /* Blue */
             --revisado-color: #2563eb;
-            --warning-color: #f59e0b; /* Amber */
             
             --btn-gradient: linear-gradient(45deg, #3b82f6, #2563eb);
             --btn-gradient-hover: linear-gradient(45deg, #60a5fa, #3b82f6);
+            --btn-solicitado-gradient: linear-gradient(45deg, #f59e0b, #d97706);
         }
 
         body.dark {
@@ -52,46 +53,39 @@
             --text-secondary: #9ca3af;
             --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
             
-            --accent-color: #2dd4bf; 
-            --pending-color: #f43f5e;
+            --reparado-color: #2dd4bf; 
+            --pendiente-color: #f43f5e;
+            --solicitado-color: #f59e0b;
             --info-color: #60a5fa;
             --revisado-color: #60a5fa;
-            --warning-color: #f59e0b;
             
             --btn-gradient: linear-gradient(45deg, #a78bfa, #7c3aed);
             --btn-gradient-hover: linear-gradient(45deg, #c4b5fd, #8b5cf6);
+            --btn-solicitado-gradient: linear-gradient(45deg, #f59e0b, #d97706);
         }
 
         /* --- RESET Y GLOBALES --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { -webkit-text-size-adjust: 100%; }
         body {
-            font-family: var(--font-family);
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            -webkit-tap-highlight-color: transparent;
-            line-height: 1.6;
-            transition: background-color 0.3s ease;
+            font-family: var(--font-family); background-color: var(--bg-color); color: var(--text-primary);
+            -webkit-tap-highlight-color: transparent; line-height: 1.6; transition: background-color 0.3s ease;
         }
 
         #app-container { display: flex; flex-direction: column; height: 100dvh; max-width: 600px; margin: 0 auto; background-color: var(--primary-bg); transition: background-color 0.3s ease;}
 
         /* --- HEADER --- */
         header {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            padding: 0.75rem 1.25rem;
-            text-align: center;
-            border-bottom: 1px solid var(--glass-border);
+            background: var(--glass-bg); backdrop-filter: blur(12px);
+            padding: 0.75rem 1.25rem; text-align: center; border-bottom: 1px solid var(--glass-border);
             position: sticky; top: 0; z-index: 100;
             display: flex; justify-content: space-between; align-items: center;
         }
         header h1 { font-size: 1.25rem; font-weight: 600; color: var(--text-primary); }
-        #theme-switcher {
-            background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--text-secondary);
-        }
-        #theme-switcher:hover { color: var(--info-color); }
-        #theme-switcher .icon { width: 24px; height: 24px; }
+        .header-actions { display: flex; align-items: center; gap: 0.5rem;}
+        .header-actions button { background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--text-secondary); }
+        .header-actions button:hover { color: var(--info-color); }
+        .header-actions .icon { width: 24px; height: 24px; }
 
         /* --- CONTENIDO PRINCIPAL --- */
         main { flex-grow: 1; overflow-y: auto; padding: 1.25rem; background-color: var(--secondary-bg); transition: background-color 0.3s ease;}
@@ -100,61 +94,55 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- FORMULARIO --- */
-        #check-form { display: flex; flex-direction: column; gap: 1.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
         #check-form label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.875rem; color: var(--text-secondary); }
         #check-form input[type="text"], #check-form select {
-            width: 100%; padding: 0.85rem 1rem;
-            border: 1px solid var(--glass-border); border-radius: 0.5rem;
-            font-size: 1rem; font-family: var(--font-family);
-            background-color: var(--primary-bg); color: var(--text-primary);
+            width: 100%; padding: 0.85rem 1rem; border: 1px solid var(--glass-border); border-radius: 0.5rem;
+            font-size: 1rem; font-family: var(--font-family); background-color: var(--primary-bg); color: var(--text-primary);
             box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s;
         }
         #check-form input[type="text"]:focus, #check-form select:focus {
-            outline: none; border-color: var(--info-color);
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--info-color) 30%, transparent);
+            outline: none; border-color: var(--info-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--info-color) 30%, transparent);
         }
-        select option { background: #1f2937; color: white; }
-        body.dark select option { background: var(--primary-bg); }
+        select option { background: #ffffff; color: #1f2937; }
+        body.dark select option { background: var(--primary-bg); color: var(--text-primary); }
 
         .radio-group { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
         .radio-group input[type="radio"] { display: none; }
         .radio-group label {
-            padding: 0.85rem; border: 1px solid var(--glass-border); border-radius: 0.5rem;
-            text-align: center; cursor: pointer; transition: all 0.2s ease-in-out;
-            font-weight: 500; background-color: var(--primary-bg);
+            padding: 0.85rem; border: 1px solid var(--glass-border); border-radius: 0.5rem; text-align: center;
+            cursor: pointer; transition: all 0.2s ease-in-out; font-weight: 500; background-color: var(--primary-bg);
         }
         .radio-group input[type="radio"]:hover + label { border-color: var(--info-color); transform: translateY(-2px); }
-        .radio-group input[type="radio"][value="BUENO"]:checked + label {
-            background-color: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 600;
-        }
-        .radio-group input[type="radio"][value="MALO"]:checked + label {
-            background-color: var(--pending-color); color: white; border-color: var(--pending-color); font-weight: 600;
-        }
+        .radio-group input[type="radio"][value="BUENO"]:checked + label { background-color: var(--reparado-color); color: white; border-color: var(--reparado-color); font-weight: 600; }
+        .radio-group input[type="radio"][value="MALO"]:checked + label { background-color: var(--pendiente-color); color: white; border-color: var(--pendiente-color); font-weight: 600; }
         
         /* --- BOTONES --- */
         .btn {
-            width: 100%; padding: 0.85rem 1rem; border: none; border-radius: 0.5rem;
-            color: white; font-size: 1rem; font-weight: 600; font-family: var(--font-family);
-            cursor: pointer; text-align: center; text-decoration: none;
-            box-shadow: var(--shadow); transition: all 0.2s ease-in-out;
+            width: 100%; padding: 0.85rem 1rem; border: none; border-radius: 0.5rem; color: white; font-size: 1rem;
+            font-weight: 600; font-family: var(--font-family); cursor: pointer; text-align: center; text-decoration: none;
+            box-shadow: var(--shadow); transition: all 0.2s ease-in-out; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
         }
         .btn:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); transform: translateY(-2px); }
+        body.dark .btn:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2), 0 4px 6px -2px rgba(0,0,0,0.1); }
         .btn:active { transform: translateY(0); box-shadow: var(--shadow); }
-        #submit-btn { background-image: var(--btn-gradient); }
-        #submit-btn:hover { background-image: var(--btn-gradient-hover); }
+        #submit-btn, #edit-modal-modify-btn { background-image: var(--btn-gradient); }
+        #submit-btn:hover, #edit-modal-modify-btn:hover { background-image: var(--btn-gradient-hover); }
         .btn-secondary { background-color: #4b5563; }
         .btn-secondary:hover { background-color: #374151; }
         .btn-danger { background-color: #ef4444; }
         .btn-danger:hover { background-color: #dc2626; }
+        .btn-solicitar { background-image: var(--btn-solicitado-gradient); }
 
-        /* --- LISTAS --- */
+        /* --- LISTAS Y TARJETAS --- */
         .record-list { list-style: none; }
         .record-item {
-            background: var(--primary-bg);
-            padding: 1.25rem; border-radius: 0.75rem; margin-bottom: 1rem;
+            background: var(--primary-bg); padding: 1.25rem; border-radius: 0.75rem; margin-bottom: 1rem;
             box-shadow: var(--shadow); border: 1px solid var(--glass-border);
-            display: flex; flex-direction: column; gap: 0.75rem; transition: border-color 0.3s;
+            display: flex; flex-direction: column; gap: 0.75rem; transition: all 0.2s ease;
         }
+        .record-item[data-action="show-details"] { cursor: pointer; }
+        .record-item[data-action="show-details"]:hover { border-color: var(--info-color); transform: translateY(-3px); }
         .record-header { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 1.1rem; }
         .record-ppu { padding: 0.25rem 0.75rem; background: color-mix(in srgb, var(--info-color) 15%, transparent); color: color-mix(in srgb, var(--info-color) 100%, black); border-radius: 999px; font-size: 1rem; font-weight: 600; }
         body.dark .record-ppu { background: color-mix(in srgb, var(--info-color) 20%, transparent); color: var(--info-color); }
@@ -162,10 +150,13 @@
         .record-details { font-size: 0.9rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
         .detail-item { display: flex; align-items: center; gap: 0.5rem; }
         .status-badge { padding: 0.2rem 0.5rem; border-radius: 0.25rem; font-weight: 600; font-size: 0.8rem; color: white; }
-        .status-badge.bueno { background-color: var(--accent-color); }
-        .status-badge.malo, .status-badge.pendiente { background-color: var(--pending-color); color: white; }
+        .status-badge.bueno { background-color: var(--reparado-color); } /* Usamos reparado para consistencia */
         .status-badge.revisado { background-color: var(--revisado-color); }
+        .status-badge.pendiente { background-color: var(--pendiente-color); }
+        .status-badge.solicitado { background-color: var(--solicitado-color); }
+        .status-badge.reparado { background-color: var(--reparado-color); }
         .btn-reparado { background-image: var(--btn-gradient); }
+        .malo { background-color: #dc2626 !important; }
 
         /* --- INFORME --- */
         .report-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
@@ -179,7 +170,7 @@
         #pendientes-reparar-count { color: var(--pending-color); }
         .stat-card .label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
         .report-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
-        .report-actions .btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem; }
+        .report-actions .btn { font-size: 0.9rem; }
         .list-section h3 { margin-bottom: 1rem; font-weight: 600; font-size: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;}
         .simple-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.75rem; }
         .simple-list li {
@@ -195,29 +186,27 @@
         /* --- NAVEGACIÓN --- */
         nav {
             display: flex; background: var(--glass-bg); backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border); padding: 0.5rem;
-            position: sticky; bottom: 0; margin: 1rem; border-radius: 999px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid var(--glass-border); padding: 0.5rem; position: sticky;
+            bottom: 0; margin: 1rem; border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         body.dark nav { box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .nav-btn {
             flex: 1; padding: 0.5rem; background: none; border: none; cursor: pointer;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 2px; color: var(--text-secondary); border-radius: 999px;
-            transition: all 0.3s ease;
+            gap: 2px; color: var(--text-secondary); border-radius: 999px; transition: all 0.3s ease;
         }
         .nav-btn.active { color: var(--info-color); background-color: color-mix(in srgb, var(--info-color) 10%, transparent); }
         body.dark .nav-btn.active { color: white; background-color: var(--info-color); }
         .nav-btn span { font-size: 0.7rem; font-weight: 500; }
         
         /* --- NOTIFICACIONES, LOADER, MODALES --- */
-        #toast-container { position: fixed; bottom: 8rem; left: 50%; transform: translateX(-50%); z-index: 2000; }
+        #toast-container { position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 5000; }
         .toast {
             background-image: var(--btn-gradient); color: white; padding: 0.75rem 1.25rem;
-            border-radius: 999px; box-shadow: var(--shadow); font-size: 0.875rem;
-            animation: slideInUp 0.5s ease forwards;
+            border-radius: 0.5rem; box-shadow: var(--shadow); font-size: 0.875rem;
+            animation: slideInDown 0.5s ease forwards;
         }
-        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInDown { from { opacity: 0; transform: translateY(-20px) translateX(-50%); } to { opacity: 1; transform: translateY(0) translateX(-50%); } }
 
         #loader { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 4000; }
         body.dark #loader { background: rgba(17, 24, 39, 0.5); }
@@ -228,27 +217,44 @@
         .modal-content {
             background: var(--secondary-bg); padding: 2rem; border-radius: 1rem;
             box-shadow: var(--shadow); width: 100%; max-width: 400px;
-            text-align: center; animation: modal-appear 0.3s ease-out;
-            border: 1px solid var(--glass-border);
+            text-align: center; animation: modal-appear 0.3s ease-out; border: 1px solid var(--glass-border);
         }
         body.dark .modal-content { background-image: linear-gradient(135deg, #1f2937, #111827); }
         @keyframes modal-appear { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
         .modal-content h2 { margin-bottom: 0.75rem; font-weight: 600; font-size: 1.25rem; color: var(--text-primary);}
         .modal-content p { margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 1rem; }
         .modal-actions { display: flex; gap: 1rem; }
-        #edit-record-modal .record-item { margin: 0; box-shadow: none; border: none; background: transparent; backdrop-filter: none; }
+        #edit-record-modal .record-item, #repair-status-modal .record-item { margin: 0; box-shadow: none; border: none; background: transparent; backdrop-filter: none; }
         #modal-confirm-btn { background-image: var(--btn-gradient); color: white; }
+
+        /* --- REPAIR STATUS MODAL --- */
+        #repair-timeline { list-style: none; margin-top: 1.5rem; text-align: left; }
+        #repair-timeline li { position: relative; padding-left: 1.5rem; padding-bottom: 1.5rem; }
+        #repair-timeline li::before {
+            content: ''; position: absolute; left: 0; top: 5px; width: 10px; height: 10px;
+            border-radius: 50%; background-color: var(--text-secondary);
+        }
+        #repair-timeline li::after {
+            content: ''; position: absolute; left: 4px; top: 15px; bottom: -5px;
+            width: 2px; background-color: var(--glass-border);
+        }
+        #repair-timeline li:last-child::after { display: none; }
+        #repair-timeline li.completed::before { background-color: var(--reparado-color); }
+        #repair-timeline .timeline-title { font-weight: 600; color: var(--text-primary); }
+        #repair-timeline .timeline-date { font-size: 0.8rem; color: var(--text-secondary); }
     </style>
 </head>
 <body>
 
     <div id="app-container">
         <header>
-            <h1>Control Limpiaparabrisas</h1>
-            <button id="theme-switcher" title="Cambiar tema">
-                <svg id="theme-icon-sun" class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>
-                <svg id="theme-icon-moon" class="icon" xmlns="http://www.w3.org/2000/svg" style="display:none;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>
-            </button>
+            <h1 id="page-title">Control Limpiaparabrisas</h1>
+            <div class="header-actions">
+                <button id="theme-switcher" title="Cambiar tema">
+                    <svg id="theme-icon-sun" class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>
+                    <svg id="theme-icon-moon" class="icon" xmlns="http://www.w3.org/2000/svg" style="display:none;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>
+                </button>
+            </div>
         </header>
 
         <main>
@@ -339,111 +345,77 @@
             </div>
         </div>
     </div>
+    <div id="repair-status-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Estado de Reparación</h2>
+            <div id="repair-status-summary"></div>
+            <ul id="repair-timeline"></ul>
+            <div class="modal-actions" id="repair-modal-actions"></div>
+        </div>
+    </div>
 
     <script type="module">
-    
-        const SUPABASE_URL = 'https://tcmtxvuucjttngcazgff.supabase.co'; 
+        // --- CONFIGURACIÓN DE SUPABASE ---
+        const SUPABASE_URL = 'https://tcmtxvuucjttngcazgff.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjbXR4dnV1Y2p0dG5nY2F6Z2ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MjUwMDEsImV4cCI6MjA1NjMwMTAwMX0.2WcIjMUEhSM6j9kYpbsYArQocZdHx86k7wXk-NyjIs0';
 
         let supabase;
         try {
             if (window.supabase) supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            else throw new Error("Librería de Supabase no encontrada.");
         } catch (error) { console.error("Error inicializando Supabase:", error); }
-
-        // --- LISTA DE LA FLOTA ---
+        
         const flota = ['LXWP57', 'LXWP58', 'LXWP59', 'LXWP60', 'LXWP61', 'LXWP62', 'LXWP64', 'LXWP66', 'LXWP67', 'LXWP68', 'LXWP69', 'LXWP70', 'LXWP71', 'LXWP72', 'LXWP73', 'LXWP74', 'LXWP75', 'LXWP76', 'LXWP77', 'LXWP78', 'LXWP79', 'LXWP80', 'LXWP81', 'LXWP82', 'LXWP83', 'LXWP85', 'LXWP86', 'LXWP87', 'PFTV77', 'PFTW19', 'PFTW20', 'PFTW25', 'PFTW26', 'PFTW28', 'PFTW29', 'PFTW30', 'PFTW31', 'PFTW32', 'PFTW34', 'PFTW35', 'PFTW36', 'PFTW38', 'PFTW39', 'PFTW40', 'PFTW41', 'PFTW42', 'PFTW44', 'PFTW45', 'PFTW46', 'PFTW47', 'PFTW48', 'PFTW49', 'PFTW50', 'PFTW51', 'PFTW55', 'PFTW56', 'PFTW57', 'PFTW58', 'PFTW59', 'PFTW60', 'PFTW61', 'PFTW62', 'PFVG75', 'PFVG76', 'PFVG77', 'PFVG78', 'PFVG79', 'PFVG80', 'PFVG82', 'PFVG83', 'PFVG85', 'PFVG86', 'PFVG87', 'PFVG88', 'PFVG89', 'PFVG90', 'PFVG92', 'PFVG94', 'PFVG95', 'PFVG96', 'PFVG97', 'PFVG98', 'PFVG99', 'PFVH10', 'PFVH11', 'PFVH12', 'PFVH13', 'PFVH14', 'PFVH15', 'PFYC13', 'PFYC14', 'PFYC16', 'PFYC17', 'PFYC19', 'PFYC20', 'PFYC25', 'PFYC26', 'PFYC27', 'PFYC28', 'PFYC29', 'PFYC31', 'PFYC32', 'PFYC33', 'PFYC34', 'PFYC35', 'PFYC36', 'PFYC37', 'PFYC43', 'PFYC44', 'PFYC46', 'PFYC49', 'PFYC50', 'PFYC53', 'PFYC55', 'PFYC57', 'PFYC58', 'PFYC60', 'PFYC61', 'PFYC64', 'PFYC65', 'PFYC66', 'PFYC68', 'PFYC69', 'PFYC70', 'PFYC72', 'PFYC75', 'PFYC76', 'PFYC77', 'PFYC79', 'PFYC80', 'PFYC81', 'PFYC85', 'PFYC88', 'PFYC90', 'PFZK83', 'PFZK91', 'PGBF59', 'PGBY67', 'PGBY72', 'PGBY73', 'PGBY83', 'PGKP67', 'PGLD42', 'PGLD67', 'PGRZ67', 'PGTT95', 'PGTV12', 'PGWT98', 'SHCV78', 'SHCV83', 'SHCX39', 'SHCY22', 'SHCY28', 'SHXD75', 'SHXD77', 'SHXD79', 'SHXD85', 'SHXF13', 'SHXF14', 'SHXF29', 'SHXF31', 'SHXF84', 'SHXF85', 'SHXF87', 'SHXF88', 'SHXF90', 'SHXF92', 'SHXF93', 'SHXF97', 'SHXG36', 'SHXG38', 'SJPB21', 'SJPB25', 'SJPC73', 'SJPD42', 'SJPD44', 'SJPD71', 'SJPD72', 'SJPD97', 'SJPF43', 'SJPF44', 'SKPH70', 'SKPH73', 'SKPJ90', 'SKPK18', 'SKPK19', 'SKPK20', 'SKPK21', 'SKPK22', 'SKPK23', 'SKPK25', 'SKPK26', 'SKPK27', 'SKPK28', 'SKPK31', 'SKPK32', 'SKPK34', 'SKPK35', 'SKPK37', 'SKPK39', 'SKPK40', 'SKPK42', 'SKPK44', 'SKPK45', 'SKPK62', 'SKPK63', 'SKPL28', 'SKPL30', 'SKPL33', 'SKPL34', 'SKPL36'];
         
         let allRecords = [];
-        let confirmAction = null;
-        let currentEditId = null;
         let recordToEdit = null;
         let ppuCheckTimeout;
+        let currentEditId = null; 
+        let dom = {};
 
-        // --- SELECTORES DE ELEMENTOS DEL DOM ---
-        const dom = {
-            main: document.querySelector('main'),
-            pageTitle: document.getElementById('page-title'),
-            pages: document.querySelectorAll('.page'),
-            navButtons: document.querySelectorAll('.nav-btn'),
-            loader: document.getElementById('loader'),
-            checkForm: document.getElementById('check-form'),
-            ppuInput: document.getElementById('ppu'),
-            terminalSelect: document.getElementById('terminal'),
-            submitBtn: document.getElementById('submit-btn'),
-            lastCheckedCard: document.getElementById('last-checked-card'),
-            themeSwitcher: document.getElementById('theme-switcher'),
-            themeIconSun: document.getElementById('theme-icon-sun'),
-            themeIconMoon: document.getElementById('theme-icon-moon'),
-            confirmationModal: {
-                modal: document.getElementById('confirmation-modal'),
-                message: document.getElementById('modal-message'),
-                cancelBtn: document.getElementById('modal-cancel-btn'),
-                confirmBtn: document.getElementById('modal-confirm-btn')
-            },
-            editModal: {
-                modal: document.getElementById('edit-record-modal'),
-                summary: document.getElementById('existing-record-summary'),
-                closeBtn: document.getElementById('edit-modal-close-btn'),
-                modifyBtn: document.getElementById('edit-modal-modify-btn')
-            }
-        };
-
-        // --- FUNCIONES UTILITARIAS ---
         const showLoader = () => dom.loader.style.display = 'flex';
         const hideLoader = () => dom.loader.style.display = 'none';
-        
-        const getFormattedDate = () => new Date().toLocaleDateString('es-CL');
-        const getFormattedTime = () => new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+        const getFormattedDateTime = () => `${new Date().toLocaleDateString('es-CL')} ${new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}`;
 
         function showToast(message) {
-            const toastContainer = document.getElementById('toast-container');
+            const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            toastContainer.appendChild(toast);
-            setTimeout(() => { toast.remove(); }, 4000);
+            toast.className = 'toast'; toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
         }
 
-        // --- MANEJO DE TEMA (MODO CLARO/OSCURO) ---
         function applyTheme(theme) {
-            if (theme === 'dark') {
-                document.body.classList.add('dark');
-                dom.themeIconSun.style.display = 'none';
-                dom.themeIconMoon.style.display = 'block';
-            } else {
-                document.body.classList.remove('dark');
-                dom.themeIconSun.style.display = 'block';
-                dom.themeIconMoon.style.display = 'none';
-            }
+            document.body.classList.toggle('dark', theme === 'dark');
+            dom.themeIconSun.style.display = theme === 'dark' ? 'none' : 'block';
+            dom.themeIconMoon.style.display = theme === 'dark' ? 'block' : 'none';
         }
 
         function toggleTheme() {
-            const currentTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
-            localStorage.setItem('theme', currentTheme);
-            applyTheme(currentTheme);
+            const theme = document.body.classList.contains('dark') ? 'light' : 'dark';
+            localStorage.setItem('theme', theme);
+            applyTheme(theme);
         }
 
-        // --- NAVEGACIÓN Y MODALES ---
         function showPage(pageId, title) {
             dom.pages.forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             dom.navButtons.forEach(b => b.classList.remove('active'));
             document.querySelector(`.nav-btn[data-page="${pageId}"]`)?.classList.add('active');
-            dom.pageTitle.textContent = title;
+            if (dom.pageTitle) dom.pageTitle.textContent = title;
         }
 
         function showConfirmationModal(message, onConfirm) {
             dom.confirmationModal.message.textContent = message;
-            confirmAction = onConfirm;
+            dom.confirmationModal.action = onConfirm;
             dom.confirmationModal.modal.style.display = 'flex';
         }
         function hideConfirmationModal() {
             dom.confirmationModal.modal.style.display = 'none';
-            confirmAction = null;
+            dom.confirmationModal.action = null;
         }
 
         function showEditModal(record) {
+            dom.ppuInput.blur();
             recordToEdit = record;
             dom.editModal.summary.innerHTML = createRecordHTML(record, false);
             dom.editModal.modal.style.display = 'flex';
@@ -452,13 +424,22 @@
             dom.editModal.modal.style.display = 'none';
             recordToEdit = null;
         }
-
-        // --- RENDERIZADO Y UI ---
+        
         function createRecordHTML(record, isInteractive) {
             const isPending = record.estado === 'PENDIENTE';
-            const repairButton = isPending && isInteractive ? `<div class="pending-actions"><button class="btn btn-reparado" data-id="${record.id}">Marcar como Reparado</button></div>` : '';
-            const estadoClass = record.estado.toLowerCase().replace(' ', '-');
-            return `<li class="record-item" data-id="${record.id}">
+            const actionAttr = isPending && isInteractive ? `data-action="show-details"` : '';
+            
+            let estadoClass = record.estado.toLowerCase().replace(' ', '-');
+            let statusText = record.estado;
+
+            if (isPending) {
+                estadoClass = record.repair_status ? record.repair_status.toLowerCase() : 'pendiente';
+                statusText = record.repair_status || 'PENDIENTE';
+            } else if (record.estado === 'REPARADO') {
+                 estadoClass = 'reparado';
+            }
+            
+            return `<li class="record-item" data-id="${record.id}" ${actionAttr}>
                     <div class="record-header"><span class="record-ppu">${record.ppu}</span><span class="record-date">${record.fecha} ${record.hora}</span></div>
                     <div class="record-details">
                         <div class="detail-item"><span>Izquierdo:</span><span class="status-badge ${record.limpiaparabrisas_izq === 'BUENO' ? 'bueno' : 'malo'}">${record.limpiaparabrisas_izq}</span></div>
@@ -466,18 +447,19 @@
                     </div>
                     <div class="record-details">
                         <div class="detail-item"><strong>Terminal:</strong> ${record.terminal}</div>
-                        <div class="detail-item"><strong>Estado:</strong><span class="status-badge ${estadoClass}">${record.estado}</span></div>
+                        <div class="detail-item"><strong>Estado:</strong><span class="status-badge ${estadoClass}">${statusText}</span></div>
                     </div>
-                    ${repairButton}</li>`;
+                </li>`;
         }
-        
+
         function updateUI(records) {
             allRecords = records;
             records.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            
+            const busesMalos = records.filter(r => r.was_pending || r.estado === 'PENDIENTE');
 
             document.getElementById('records-list').innerHTML = records.map(r => createRecordHTML(r, true)).join('') || '<p style="text-align:center; padding:1rem;">No hay registros.</p>';
-            document.getElementById('pending-list').innerHTML = records.filter(r => r.estado === 'PENDIENTE').map(r => createRecordHTML(r, true)).join('') || '<p style="text-align:center; padding:1rem;">No hay reparaciones pendientes.</p>';
-            
+            document.getElementById('pending-list').innerHTML = busesMalos.map(r => createRecordHTML(r, true)).join('') || '<p style-align:center; padding:1rem;">No hay buses con problemas.</p>';
             updateReportPage(records);
             updateLastChecked();
         }
@@ -489,23 +471,46 @@
             const notRegisteredPpus = flota.filter(p => !registeredPpus.includes(p));
             document.getElementById('no-revisados-count').textContent = notRegisteredPpus.length;
             document.getElementById('not-checked-list').innerHTML = notRegisteredPpus.map(p => `<li>${p}</li>`).join('') || '<p style="text-align:center;">Toda la flota ha sido registrada.</p>';
-            document.getElementById('report-pending-list').innerHTML = records.filter(r => r.estado === 'PENDIENTE').map(r => createRecordHTML(r, true)).join('') || '<p style-align:center; padding:1rem;">No hay buses con problemas.</p>';
+            
+            const busesConProblemas = records.filter(r => r.was_pending || r.estado === 'PENDIENTE');
+            document.getElementById('report-pending-list').innerHTML = busesConProblemas.map(r => createRecordHTML(r, true)).join('') || '<p style-align:center; padding:1rem;">No hay buses con problemas.</p>';
         }
 
         function updateLastChecked() {
             const selectedTerminal = dom.terminalSelect.value;
             const lastRecord = allRecords.filter(r => r.terminal === selectedTerminal).sort((a,b) => new Date(b.created_at) - new Date(a.created_at))[0];
-            
-            if (lastRecord) {
-                dom.lastCheckedCard.innerHTML = createRecordHTML(lastRecord, false);
-                dom.lastCheckedCard.classList.add('visible');
-            } else {
-                dom.lastCheckedCard.classList.remove('visible');
-                dom.lastCheckedCard.innerHTML = '';
-            }
+            dom.lastCheckedCard.classList.toggle('visible', !!lastRecord);
+            dom.lastCheckedCard.innerHTML = lastRecord ? createRecordHTML(lastRecord, false) : '';
         }
 
-        // --- LÓGICA DE DATOS (SUPABASE) ---
+        function showRepairStatusModal(record) {
+            dom.repairModal.record = record;
+            dom.repairModal.summary.innerHTML = createRecordHTML(record, false);
+            
+            let timelineHTML = `<li class="completed"><div class="timeline-title">Problema Reportado</div><div class="timeline-date">${record.fecha} ${record.hora}</div></li>`;
+            if (record.repair_status === 'SOLICITADO' || record.estado === 'REPARADO') {
+                timelineHTML += `<li class="completed"><div class="timeline-title">Solicitado a Mantención</div><div class="timeline-date">${record.fecha_solicitud || ''}</div></li>`;
+            } else {
+                 timelineHTML += `<li><div class="timeline-title">Solicitar a Mantención</div></li>`;
+            }
+            if (record.estado === 'REPARADO') {
+                 timelineHTML += `<li class="completed"><div class="timeline-title">Reparado</div><div class="timeline-date">${record.fecha_reparacion || ''}</div></li>`;
+            } else {
+                timelineHTML += `<li><div class="timeline-title">Marcar como Reparado</div></li>`;
+            }
+            dom.repairModal.timeline.innerHTML = timelineHTML;
+
+            let actionsHTML = `<button class="btn btn-secondary" data-action="close-repair-modal">Cerrar</button>`;
+            if (record.estado === 'PENDIENTE' && !record.repair_status) {
+                actionsHTML += `<button class="btn btn-solicitar" data-action="request-maintenance">Solicitar Mantención</button>`;
+            } else if (record.repair_status === 'SOLICITADO') {
+                actionsHTML += `<button class="btn btn-reparado" data-action="mark-repaired">Marcar como Reparado</button>`;
+            }
+            dom.repairModal.actions.innerHTML = actionsHTML;
+            dom.repairModal.modal.style.display = 'flex';
+        }
+        function hideRepairStatusModal() { dom.repairModal.modal.style.display = 'none'; }
+        
         async function loadAllRecords() {
             if (!supabase) return;
             showLoader();
@@ -513,14 +518,28 @@
                 const { data, error } = await supabase.from('limpiaparabrisas').select('*');
                 if (error) throw error;
                 updateUI(data || []);
-            } catch (error) { console.error("Error cargando registros:", error); } 
+            } catch (error) { 
+                console.error("Error cargando registros:", error);
+                showToast("Error de conexión. Verifique sus credenciales.");
+            } 
             finally { hideLoader(); }
         }
-        
-        async function markAsRepaired(id) {
+
+        async function updateRepairStatus(id, status) {
+            hideRepairStatusModal();
             showLoader();
-            await supabase.from('limpiaparabrisas').update({ estado: 'REPARADO' }).eq('id', id);
-            hideLoader();
+            try {
+                const { error } = await supabase.rpc('update_repair_status', {
+                    record_id: id,
+                    new_status: status,
+                    new_date: getFormattedDateTime()
+                });
+                if (error) throw error;
+            } catch (err) {
+                console.error("Error actualizando estado:", err);
+            } finally {
+                hideLoader();
+            }
         }
         
         function prepareFormForEdit(record) {
@@ -528,9 +547,9 @@
             dom.terminalSelect.value = record.terminal;
             document.querySelector(`input[name="limpia_izq"][value="${record.limpiaparabrisas_izq}"]`).checked = true;
             document.querySelector(`input[name="limpia_der"][value="${record.limpiaparabrisas_der}"]`).checked = true;
-            currentEditId = record.id;
             dom.submitBtn.textContent = 'Actualizar Registro';
             showPage('form-page', 'Modificar Registro');
+            currentEditId = record.id;
             window.scrollTo(0, 0);
         }
 
@@ -540,42 +559,75 @@
                 const ppuValue = dom.ppuInput.value.toUpperCase().trim();
                 if (flota.includes(ppuValue) && !currentEditId) {
                     const existingRecord = allRecords.find(r => r.ppu === ppuValue);
-                    if (existingRecord) {
-                        showEditModal(existingRecord);
-                    }
+                    if (existingRecord) { showEditModal(existingRecord); }
                 }
-            }, 500); // Debounce to avoid firing on every keystroke
+            }, 500); 
         }
 
-        // --- EXPORTACIÓN ---
         function downloadExcel(data, filename) {
              if (data.length === 0) { showToast('No hay datos para exportar.'); return; }
              const worksheet = XLSX.utils.json_to_sheet(data);
              const workbook = XLSX.utils.book_new();
              XLSX.utils.book_append_sheet(workbook, worksheet, "Registros");
-             XLSX.writeFile(workbook, `${filename}_${getFormattedDate()}.xlsx`);
+             XLSX.writeFile(workbook, `${filename}_${new Date().toLocaleDateString('sv')}.xlsx`);
         }
 
-        // --- SUSCRIPCIÓN EN TIEMPO REAL ---
         function listenToChanges() {
             if (!supabase) return;
             supabase.channel('public:limpiaparabrisas')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'limpiaparabrisas' }, (payload) => {
-                    if (payload.eventType === 'INSERT') showToast(`Nuevo registro: ${payload.new.ppu}`);
-                    if (payload.eventType === 'UPDATE') showToast(`Registro actualizado: ${payload.new.ppu}`);
                     loadAllRecords();
                 })
-                .subscribe();
+                .subscribe((status, err) => {
+                    if (err) {
+                        console.error('Error en canal de tiempo real:', err);
+                        showToast("Error de conexión en tiempo real.")
+                    }
+                });
         }
 
-        // --- INICIALIZACIÓN Y EVENT LISTENERS ---
         document.addEventListener('DOMContentLoaded', () => {
-            if (!supabase) { document.body.innerHTML = '<h1>Error Crítico: No se pudo conectar a la base de datos.</h1>'; return; }
+            dom = {
+                main: document.querySelector('main'),
+                pageTitle: document.getElementById('page-title'),
+                pages: document.querySelectorAll('.page'),
+                navButtons: document.querySelectorAll('.nav-btn'),
+                loader: document.getElementById('loader'),
+                checkForm: document.getElementById('check-form'),
+                ppuInput: document.getElementById('ppu'),
+                terminalSelect: document.getElementById('terminal'),
+                submitBtn: document.getElementById('submit-btn'),
+                lastCheckedCard: document.getElementById('last-checked-card'),
+                themeSwitcher: document.getElementById('theme-switcher'),
+                themeIconSun: document.getElementById('theme-icon-sun'),
+                themeIconMoon: document.getElementById('theme-icon-moon'),
+                confirmationModal: {
+                    modal: document.getElementById('confirmation-modal'),
+                    message: document.getElementById('modal-message'),
+                    cancelBtn: document.getElementById('modal-cancel-btn'),
+                    confirmBtn: document.getElementById('modal-confirm-btn'),
+                    action: null
+                },
+                editModal: {
+                    modal: document.getElementById('edit-record-modal'),
+                    summary: document.getElementById('existing-record-summary'),
+                    closeBtn: document.getElementById('edit-modal-close-btn'),
+                    modifyBtn: document.getElementById('edit-modal-modify-btn')
+                },
+                repairModal: {
+                    modal: document.getElementById('repair-status-modal'),
+                    summary: document.getElementById('repair-status-summary'),
+                    timeline: document.getElementById('repair-timeline'),
+                    actions: document.getElementById('repair-modal-actions'),
+                    record: null,
+                }
+            };
+            
+            if (!supabase) { document.body.innerHTML = '<h1>Error Crítico: No se pudo conectar a la base de datos. Verifique sus credenciales.</h1>'; return; }
+
             document.getElementById('flota-list').innerHTML = flota.map(p => `<option value="${p}"></option>`).join('');
             
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            applyTheme(savedTheme);
-
+            applyTheme(localStorage.getItem('theme') || 'light');
             loadAllRecords();
             listenToChanges();
 
@@ -588,49 +640,63 @@
                 e.preventDefault();
                 showLoader();
                 const ppuValue = dom.ppuInput.value.toUpperCase().trim();
-
-                if (!flota.includes(ppuValue)) { hideLoader(); return; }
+                if (!flota.includes(ppuValue)) { showToast('PPU no válida.'); hideLoader(); return; }
                 
-                const formData = new FormData(e.target);
-                const recordData = {
-                    ppu: ppuValue,
-                    limpiaparabrisas_izq: formData.get('limpia_izq'),
-                    limpiaparabrisas_der: formData.get('limpia_der'),
-                    terminal: formData.get('terminal'),
-                    fecha: getFormattedDate(),
-                    hora: getFormattedTime(),
-                    estado: (formData.get('limpia_izq') === 'MALO' || formData.get('limpia_der') === 'MALO') ? 'PENDIENTE' : 'REVISADO'
-                };
-
                 try {
-                    const { error } = currentEditId
-                        ? await supabase.from('limpiaparabrisas').update(recordData).eq('id', currentEditId)
-                        : await supabase.from('limpiaparabrisas').insert([recordData]);
+                    const { data, error } = await supabase.rpc('upsert_limpiaparabrisas_record', {
+                        p_id: currentEditId,
+                        p_ppu: ppuValue,
+                        p_izq: dom.checkForm.limpia_izq.value,
+                        p_der: dom.checkForm.limpia_der.value,
+                        p_terminal: dom.checkForm.terminal.value,
+                        p_fecha: getFormattedDateTime().split(' ')[0],
+                        p_hora: getFormattedDateTime().split(' ')[1]
+                    });
+
                     if (error) throw error;
                     
+                    showToast(currentEditId ? `Registro de ${ppuValue} actualizado!` : `Registro de ${ppuValue} guardado!`);
+                    
                     const lastTerminal = dom.terminalSelect.value;
-                    dom.checkForm.reset();
+                    dom.checkForm.reset(); 
                     dom.terminalSelect.value = lastTerminal;
-                    dom.ppuInput.focus();
+                    dom.ppuInput.focus(); 
                     currentEditId = null;
                     dom.submitBtn.textContent = 'Guardar Registro';
-                } catch (err) { console.error("Error guardando:", err); }
-                finally { hideLoader(); }
-            });
-
-            dom.main.addEventListener('click', (e) => {
-                if (e.target.classList.contains('btn-reparado')) {
-                    showConfirmationModal('¿Marcar como reparado?', () => markAsRepaired(e.target.dataset.id));
+                } catch (err) { 
+                    console.error("Error guardando:", err); 
+                    showToast(`Error: ${err.message}`);
+                } finally { 
+                    hideLoader(); 
                 }
             });
 
+            dom.main.addEventListener('click', (e) => {
+                const recordItem = e.target.closest('.record-item[data-action="show-details"]');
+                if (recordItem) {
+                    const recordId = parseInt(recordItem.dataset.id, 10);
+                    const record = allRecords.find(r => r.id === recordId);
+                    if (record) showRepairStatusModal(record);
+                }
+            });
+
+            dom.repairModal.actions.addEventListener('click', (e) => {
+                const action = e.target.dataset.action;
+                const record = dom.repairModal.record;
+                if (!action || !record) return;
+                
+                if (action === 'close-repair-modal') hideRepairStatusModal();
+                if (action === 'request-maintenance') updateRepairStatus(record.id, 'SOLICITADO');
+                if (action === 'mark-repaired') updateRepairStatus(record.id, 'REPARADO');
+            });
+            
             dom.confirmationModal.cancelBtn.addEventListener('click', hideConfirmationModal);
-            dom.confirmationModal.confirmBtn.addEventListener('click', () => { if (typeof confirmAction === 'function') confirmAction(); hideConfirmationModal(); });
+            dom.confirmationModal.confirmBtn.addEventListener('click', () => { if (typeof dom.confirmationModal.action === 'function') dom.confirmationModal.action(); hideConfirmationModal(); });
             dom.editModal.closeBtn.addEventListener('click', hideEditModal);
             dom.editModal.modifyBtn.addEventListener('click', () => { if(recordToEdit) prepareFormForEdit(recordToEdit); hideEditModal(); });
             
             document.getElementById('download-all-excel').addEventListener('click', () => downloadExcel(allRecords, 'Registros_Totales'));
-            document.getElementById('download-bad-excel').addEventListener('click', () => downloadExcel(allRecords.filter(r => r.estado === 'PENDIENTE'), 'Registros_Malos'));
+            document.getElementById('download-bad-excel').addEventListener('click', () => downloadExcel(allRecords.filter(r => r.was_pending || r.estado === 'PENDIENTE'), 'Buses_Malos'));
         });
     </script>
 </body>
